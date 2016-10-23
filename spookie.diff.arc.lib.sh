@@ -1,5 +1,5 @@
 #!/bin/sh
-libversion="1.0.10 beta"
+libversion="1.0.11 beta"
 
 tmp=/tmp/spoo.arc.multipart.tmp
 
