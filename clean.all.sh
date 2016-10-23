@@ -19,11 +19,19 @@ lmsg "Clean list: [$cleandirs]"
 for archprefx in $cleandirs; do
 	lmsg "Trying to clean $archprefx ..."
 	varname=`echo "retention__$archprefx"|tr '\/' '_'`
+	varname2=`echo "retstopon__$archprefx"|tr '\/' '_'`
 	lmsg_norm "Variable for retention age: " $varname
 	if [ -n "${!varname}" ]; then
 		lmsg "Cleaning $archprefx ..."
 		arcstor=$arcdir$archprefx
 		retention_simple_age=${!varname}
+		if [ -n "${!varname2}" ]; then
+			#если предопределена персональная переменная для этого архива, то используем ее
+			retstopon=${!varname2}
+		else
+			#иначе обнуляем переменную, и подставится глобальное значение
+			retstopon=""
+		fi
 		lmsg_ok "Reteniton age" $retention_simple_age
 		lmsg_norm "Archive storage" $arcstor
 		jobINIT__			#подключаемся к хранилищу

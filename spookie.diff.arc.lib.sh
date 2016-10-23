@@ -1,9 +1,13 @@
 #!/bin/sh
-libversion="1.1.1 rc"
+libversion="1.1.2 rc"
 
 tmp=/tmp/spoo.arc.multipart.tmp
 
 #hist:
+#	2016-10-23
+#1.1.2 + добавлен параметр retstopon_global - минимальное количество архивов которое нужно оставить при чистке старых архивов
+#	т.е. если при построении списка архивов для чистки, оказывается что остается меньше чем разрешено, то чистка отменяется
+#      + добалены параметры retstopon__<archive> то же что и глобальный, но устанавливается персонально для каждого (иначе действует глобал)
 #	2016-10-13
 #1.1.1 + добавлен параметр fulllifetime - максимальный возраст жизни полного архива в днях, после которого создастся новый (45 по умолч)
 #	2016-08-25
@@ -29,6 +33,7 @@ tmp=/tmp/spoo.arc.multipart.tmp
 #	 с паузами 30 мин между попытками
 
 #TODO:
+#	при чистке если остается точек меньше чем retstopon, то нужно не отменять чистку вообще, а корректировать список
 #cleanafter()
 #buildSimpleRetentionList() - удалять инконсистентные файлы (дифф без фула)
 #передавать день для полных копий, чтобы распределить равномерно нагрузку по дням а не в один день все
@@ -36,6 +41,10 @@ tmp=/tmp/spoo.arc.multipart.tmp
 
 if [ -z "$fulllifetime" ]; then
 	fulllifetime=45
+fi
+
+if [ -z "$retstopon_global" ]; then
+	retstopon_global=10
 fi
 
 ########################################################################
@@ -493,7 +502,11 @@ cleanWithRetentionList()	#чистит папку оставляя файлы и
 		return 13
 	fi
 	retentioncount=`echo "$1"|wc -l`
-	if [ "$retentioncount" -lt "20" ]; then
+	if [ -z "$retstopon" ]; then
+		retstopon=$retstopon_global
+	fi
+
+	if [ "$retentioncount" -lt "$retstopon" ]; then
 		lmsg "SKIP: $p retention list saves only $retentioncount restore points!!!"
 		echo "$1"
 		return 14
