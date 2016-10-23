@@ -1,9 +1,11 @@
 #!/bin/sh
-libversion="1.0.11 beta"
+libversion="1.1.1 rc"
 
 tmp=/tmp/spoo.arc.multipart.tmp
 
 #hist:
+#	2016-10-13
+#1.1.1 + добавлен параметр fulllifetime - максимальный возраст жизни полного архива в днях, после которого создастся новый (45 по умолч)
 #	2016-08-25
 #	* Причесан вывод в консоль, устранены небольшие косяки.
 #	2016-08-23
@@ -31,6 +33,10 @@ tmp=/tmp/spoo.arc.multipart.tmp
 #buildSimpleRetentionList() - удалять инконсистентные файлы (дифф без фула)
 #передавать день для полных копий, чтобы распределить равномерно нагрузку по дням а не в один день все
 
+
+if [ -z "$fulllifetime" ]; then
+	fulllifetime=45
+fi
 
 ########################################################################
 ###   F U N C S  #######################################################
@@ -299,7 +305,7 @@ findLastArc() #finds last archve file $1 - arcstor directory
 
 findLastFullArc() #finds last archve file $1 - arcstor directory
 {
-	ls -1 $1/*.{7z,zip} 2>/dev/null | grep \\\\-full\\\\. | grep -v \\\\-diff\\\\- | tail -n1
+	ls -1 $1/*.{7z,zip} 2>/dev/null | grep "\\-full\\." | grep -v "\\-diff\\-" | tail -n1
 }
 
 findlastfull() #find last full arc file in dir
@@ -309,10 +315,10 @@ findlastfull() #find last full arc file in dir
 		lastfull_base=`basename $lastfull`
 		lmsg_norm "findlastfull(): Last full archive is" "$lastfull_base /$lastfull_age_days days old"
 		lastfull_age_days=$(getFileDaysAge $lastfull)
-		lmsg_norm "findlastfull(): "
+		lmsg_norm "findlastfull(): Full age" $lastfull_age_days
 	else 
 		lastfull_age_days=0
-		lmsg "findlastfull(): No full archives found (diff mode unavailable)"
+		lmsg "findlastfull(): No full archives found in $arcstor $lastfull (diff mode unavailable)"
 	fi
 }
 
@@ -326,7 +332,7 @@ setdiffmode()	#set diff or full mode for current job
 				day=`date +%m`
 				if [ "$day" != "05" ]; then
 					#31day: 31*24*60*60=2678400
-					if [ "$lastfull_age" -lt "2678400" ]; then
+					if [ "$lastfull_age_days" -lt "$fulllifetime" ]; then
 						diffmode=true
 						lmsg_norm "$p Monthly shedule" "Diff mode"
 					else
