@@ -24,8 +24,8 @@ for archprefx in $cleandirs; do
 		lmsg "Cleaning $archprefx ..."
 		arcstor=$arcdir$archprefx
 		retention_simple_age=${!varname}
-		lmsg_ok "Reteniton age" $retention_simple_age
-		lmsg_norm "Archive storage" $arcstor
+		lmsg_ok			"Reteniton age" $retention_simple_age
+		lmsg_norm		"Archive storage" $arcstor
 		jobINIT__			#подключаемся к хранилищу
 		jobCLEAN $1			#убираем старые архивы
 		jobDONE				#прибираемся и отключаемся

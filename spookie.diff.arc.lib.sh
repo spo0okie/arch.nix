@@ -330,7 +330,7 @@ setdiffmode()	#set diff or full mode for current job
 		case "$1" in
 			[Mm][Oo][Nn][Tt][Hh][Ll][Yy])
 				day=`date +%m`
-				if [ "$day" != "05" ]; then
+#				if [ "$day" != "05" ]; then
 					#31day: 31*24*60*60=2678400
 					if [ "$lastfull_age_days" -lt "$fulllifetime" ]; then
 						diffmode=true
@@ -338,9 +338,9 @@ setdiffmode()	#set diff or full mode for current job
 					else
 						lmsg_err "$p Monthly shedule (full is older than 31day!)" "Full mode"
 					fi
-				else
-					lmsg_norm "$p Monthly shedule" "Full mode"
-				fi
+#				else
+#					lmsg_norm "$p Monthly shedule" "Full mode"
+#				fi
 			;;
 			[Dd][Ii][Ff][Ff])
 				diffmode=true
