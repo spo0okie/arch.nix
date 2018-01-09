@@ -1,9 +1,15 @@
 #!/bin/sh
-libversion="1.1.1 rc"
+libversion="1.1.2 rc"
 
 tmp=/tmp/spoo.arc.multipart.tmp
 
 #hist:
+#	2017-09-17
+#1.2.0 * список для чистки теперь составляется с учетом минимального количества файлов
+#	2016-10-23
+#1.1.2 + добавлен параметр retstopon_global - минимальное количество архивов которое нужно оставить при чистке старых архивов
+#	т.е. если при построении списка архивов для чистки, оказывается что остается меньше чем разрешено, то чистка отменяется
+#      + добалены параметры retstopon__<archive> то же что и глобальный, но устанавливается персонально для каждого (иначе действует глобал)
 #	2016-10-13
 #1.1.1 + добавлен параметр fulllifetime - максимальный возраст жизни полного архива в днях, после которого создастся новый (45 по умолч)
 #	2016-08-25
@@ -29,6 +35,7 @@ tmp=/tmp/spoo.arc.multipart.tmp
 #	 с паузами 30 мин между попытками
 
 #TODO:
+#	при чистке если остается точек меньше чем retstopon, то нужно не отменять чистку вообще, а корректировать список
 #cleanafter()
 #buildSimpleRetentionList() - удалять инконсистентные файлы (дифф без фула)
 #передавать день для полных копий, чтобы распределить равномерно нагрузку по дням а не в один день все
@@ -36,6 +43,10 @@ tmp=/tmp/spoo.arc.multipart.tmp
 
 if [ -z "$fulllifetime" ]; then
 	fulllifetime=45
+fi
+
+if [ -z "$retstopon_global" ]; then
+	retstopon_global=10
 fi
 
 ########################################################################
@@ -464,11 +475,27 @@ buildSimpleRetentionList()	#делаем список файлов для сох
 	retentionage=$(( $1 * 86400 ))
 	retentiondate=$(( $currenttime - $retentionage ))
 	retentiondatereadable=`date -d@$retentiondate +%Y-%m-%d`
-	lmsg "$p filtering out files older than $retentiondatereadable ... "
 	#сторим список файлов к проверке
-	testlist=`ls $arcstor/*.{7z,zip} 2>/dev/null`
+	testlist=`ls -1 -t -r $arcstor/*.{7z,zip} 2>/dev/null`
+	testlist_cnt=`echo "$testlist" |wc -l`
+	testlist_orig=$testlist_cnt
 	outlist=""
+	if [ -z "$retstopon" ]; then
+		retstopon=$retstopon_global
+	fi
+	lmsg "$p filtering out files older than $retentiondatereadable ($retstopon limit)... "
 	for testf in $testlist; {
+		#пропускаем файлы если длинна списка укоротилась до предельной
+		if [ "$testlist_cnt" -le "$retstopon" ]; then
+			outlist=$( printf "$outlist\n$testf" )
+			#он дельта или полный?
+			if [ $( fileIsDiff $testf ) == "diff" ]; then
+				#дельта - ищем фулл
+				testff=$( fullFromDiff $testf )
+				outlist=$( printf "$outlist\n$arcstor/$testff" )
+			fi
+			continue
+		fi
 		#время модификации
 		testftimestamp=`stat -c %Y $testf`
 		if ! [ "$testftimestamp" -lt "$retentiondate" ]; then
@@ -480,9 +507,15 @@ buildSimpleRetentionList()	#делаем список файлов для сох
 				testff=$( fullFromDiff $testf )
 				outlist=$( printf "$outlist\n$arcstor/$testff" )
 			fi
+		else
+			#уменьшаем размр списка на 1
+			testlist_cnt=$(( $testlist_cnt - 1 ))
+			lmsg "$p original filelist consist of $testlist_orig files filtered to ($testlist_cnt)"
 		fi
 	}
 	simpleRetentionList=`echo "$outlist"|sort -u`
+	simpleRetentionList_cnt=`echo "$simpleRetentionList"|wc -l`
+	lmsg "$p original filelist consist of $testlist_orig files filtered to $simpleRetentionList_cnt($testlist_cnt)"
 }
 
 cleanWithRetentionList()	#чистит папку оставляя файлы из списка
@@ -493,7 +526,11 @@ cleanWithRetentionList()	#чистит папку оставляя файлы и
 		return 13
 	fi
 	retentioncount=`echo "$1"|wc -l`
-	if [ "$retentioncount" -lt "20" ]; then
+	if [ -z "$retstopon" ]; then
+		retstopon=$retstopon_global
+	fi
+
+	if [ "$retentioncount" -lt "$retstopon" ]; then
 		lmsg "SKIP: $p retention list saves only $retentioncount restore points!!!"
 		echo "$1"
 		return 14
