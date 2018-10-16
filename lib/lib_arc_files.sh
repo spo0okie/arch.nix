@@ -50,8 +50,8 @@ getFileUnixTime() #returns file creation time in unixtimestamp; usage ftime=$(ge
 	if $( remotePathCheck $1); then
 		#удаленный путь
 		remotePathParse $1
-		#ssh -i $keys_storage/$remoteserver-key $remoteserver "stat -c %Y $remotepath 2>>/dev/null"
-		ssh -i $keys_storage/$remoteserver-key $remoteserver "stat -c %Y $remotepath 2>&1" 2>&1
+		ssh -i $keys_storage/$remoteserver-key $remoteserver "stat -c %Y $remotepath 2>>/dev/null"
+		#ssh -i $keys_storage/$remoteserver-key $remoteserver "stat -c %Y $remotepath 2>&1" 2>&1
 	else
 		stat -c %Y $1 2>>/dev/null	
 	fi
@@ -79,7 +79,11 @@ findLastArc() #finds last archve file $1 - arcstor directory
 		#удаленный путь
 		remotePathParse $1
 		response=`ssh -i $keys_storage/$remoteserver-key $remoteserver "ls -1 -t $remotepath/*.{7z,zip} 2>/dev/null| head -n 1"`
-		echo "$remoteserver:$response"
+		if [ -n "$response" ]; then
+			echo "$remoteserver:$response"
+		else
+			echo ""
+		fi
 	else
 		ls -1 -t $1/*.{7z,zip} 2>/dev/null| head -n 1
 	fi
@@ -93,7 +97,11 @@ findFirstArc() #finds last archve file $1 - arcstor directory
 		remotePathParse $1
 		response=`ssh -i $keys_storage/$remoteserver-key $remoteserver "ls -1 -t $remotepath/*.{7z,zip} 2>/dev/null| tail -n 1"`
 		#ssh -i $keys_storage/$remoteserver-key $remoteserver "ls -1 -t $remotepath/*.{7z,zip}" 2>&1
-		echo "$remoteserver:$response"
+		if [ -n "$response" ]; then
+			echo "$remoteserver:$response"
+		else
+			echo ""
+		fi
 	else
 		ls -1 -t $1/*.{7z,zip} 2>/dev/null| tail -n 1
 	fi
@@ -106,7 +114,11 @@ findLastFullArc() #finds last archve file $1 - arcstor directory
 		#удаленный путь
 		remotePathParse $1
 		response=`ssh -i $keys_storage/$remoteserver-key $remoteserver "ls -1 -t $remotepath/*.{7z,zip} 2>/dev/null | grep '\-full\.' | grep -v '\-diff\-' | tail -n1"`
-		echo "$remoteserver:$response"
+		if [ -n "$response" ]; then
+			echo "$remoteserver:$response"
+		else
+			echo ""
+		fi
 	else
 		ls -1 -t $1/*.{7z,zip} 2>/dev/null | grep '\-full\.' | grep -v '\-diff\-' | tail -n1
 	fi

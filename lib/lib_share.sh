@@ -38,13 +38,12 @@ shareuse() #mount share
 	dircheck $mountpoint
 	p="shareuse(): mounting $arcshare to $mountpoint"
 	while true ; do
-		if $( mount -t cifs -o username=$arcuser,password=$arcsecret $arcshare $mountpoint ); then
+		if $( mount -t cifs -o username="$arcuser",password="$arcsecret" $arcshare $mountpoint ); then
 			lmsg_ok "$p"
-			arcstor=$mountpoint/$arcstor
 			return 0
 		else
 			lmsg_err "$p"
-			lmsg "retry in 30 mins (waiting) ... "
+			lmsg "retry in 30 secs (waiting) ... "
 			sleep 30
 		fi
 	done

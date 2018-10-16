@@ -56,23 +56,43 @@ case $1 in
 		#ищем первый архив
 		firstarc=`findFirstArc $arcstor`
 		#возвращаем возраст в часах
-		getFileHoursAge $firstarc
+		if [ -n "$firstarc" ]; then
+			getFileHoursAge $firstarc
+		else
+			echo 65535
+		fi
 	;;
 	arclastage)
 		lastarc=`findLastArc $arcstor`
-		getFileHoursAge $lastarc
+		if [ -n "$lastarc" ]; then
+			getFileHoursAge $lastarc
+		else
+			echo 65536
+		fi
 	;;
 	arcfullage)
 		lastarc=`findLastFullArc $arcstor`
-		getFileHoursAge $lastarc
+		if [ -n "$lastarc" ]; then
+			getFileHoursAge $lastarc
+		else
+			echo 65536
+		fi
 	;;
 	synclastage)
 		lastsync=`findLastArc $remotesync/$archprefx`
-		getFileHoursAge $lastsync
+		if [ -n "$lastsync" ]; then
+			getFileHoursAge $lastsync
+		else
+			echo 65536
+		fi
 	;;
 	syncfirstage)
 		lastsync=`findFirstArc $remotesync/$archprefx`
-		getFileHoursAge $lastsync
+		if [ -n "$lastsync" ]; then
+			getFileHoursAge $lastsync
+		else
+			echo 65536
+		fi
 	;;
 
 esac
