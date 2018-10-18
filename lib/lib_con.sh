@@ -22,7 +22,7 @@ fi
 crlf='
 '
 
-if [ "$TERM" != "dumb" ] && [ -n "$TERM" ]; then
+if [ "$TERM" != "dumb" ] && [ "$TERM" != "unknown" ] && [ -n "$TERM" ]; then
 	CON_RED=$(tput setaf 1)
 	CON_GREEN=$(tput setaf 2)
 	CON_NORMAL=$(tput sgr0)
