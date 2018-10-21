@@ -55,7 +55,7 @@ for section in $sections; do
 		echo "		\"{#SPOOARCWARNAGEHINT}\":\"$warning_arc_age_hint\","
 		echo "		\"{#SPOOSYNCWARNAGEHINT}\":\"$warning_sync_age_hint\","
 		echo "		\"{#SPOOARCCRITAGEHINT}\":\"$critical_arc_age_hint\","
-		echo "		\"{#SPOOSYNCCRITAGEHINT}\":\"$critical_sync_age_hint\","
+		echo "		\"{#SPOOSYNCCRITAGEHINT}\":\"$critical_sync_age_hint\""
 		echo -n "	}"
 		exists=1
 	fi
