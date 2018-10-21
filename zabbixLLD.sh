@@ -47,7 +47,15 @@ for section in $sections; do
 		fi
 		echo "{"
 		echo "		\"{#SPOOARCINI}\":\"$section\","
-		echo "		\"{#SPOOARCDESCR}\":\"$description\""
+		echo "		\"{#SPOOARCDESCR}\":\"$description\","
+		echo "		\"{#SPOOARCWARNAGE}\":\"$warning_arc_age\","
+		echo "		\"{#SPOOSYNCWARNAGE}\":\"$warning_sync_age\","
+		echo "		\"{#SPOOARCWARNAGE}\":\"$critical_arc_age\","
+		echo "		\"{#SPOOSYNCWARNAGE}\":\"$critical_sync_age\","
+		echo "		\"{#SPOOARCWARNAGEHINT}\":\"$warning_arc_age_hint\","
+		echo "		\"{#SPOOSYNCWARNAGEHINT}\":\"$warning_sync_age_hint\","
+		echo "		\"{#SPOOARCWARNAGEHINT}\":\"$critical_arc_age_hint\","
+		echo "		\"{#SPOOSYNCWARNAGEHINT}\":\"$critical_sync_age_hint\","
 		echo -n "	}"
 		exists=1
 	fi

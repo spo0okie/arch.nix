@@ -40,9 +40,13 @@ syncDir()
 	checkvar_ret "$3" "$p Remote command" && \
 	checkvar_ret "$4" "$p PID file" \
 	|| return 10
-
+	if [ -n "$syncbwlimit" ]; then
+		bwlimit="--bwlimit $syncbwlimit"
+	else
+		bwlimit=""
+	fi
         lmsg__ "$p forking rsync ... " "99999"
-        rsync -a -P -e "ssh -i /root/.ssh/ssh-key" $2/$1 $3 & lastpid=$! >> $4
+        rsync $bwlimit -a -P -e "ssh -i /root/.ssh/ssh-key" $2/$1 $3 & lastpid=$! >> $4
         echo $lastpid >> $4
         lmsg__ok "$p forking rsync ... " $lastpid
         lmsg "$p waiting rsync to complete ... "
@@ -97,17 +101,23 @@ arc_sync_DirPeriod_async()
 	buildSimpleRetentionList $3
 	arc_sync_prepFilesList $syncdir "$simpleRetentionList"
 
+	if [ -n "$syncbwlimit" ]; then
+		bwlimit="--bwlimit $syncbwlimit"
+	else
+		bwlimit=""
+	fi
+
 	if [ -n "$6" ]; then
 		#добавляем редирект вывода в отдельный лог
 		#--partial позволяет докачку
 		lmsg__ "$p forking rsync (logging into $6) ... " "99999"
 		date >> $6
-		rsync -a -v --partial -e "ssh -i /root/.ssh/ssh-key" $syncdir/ $4 >> $6 & lastpid=$! >> $5
+		rsync $bwlimit -a -v --partial -e "ssh -i /root/.ssh/ssh-key" $syncdir/ $4 >> $6 & lastpid=$! >> $5
 		lmsg__ok "$p forking rsync (logging into $6) ... " $lastpid
 	else
 		#вывод в консоль -Р означает докачку+вывод прогресса в консоль
 		lmsg__ "$p forking rsync ... " "99999"
-		rsync -a -P -e "ssh -i /root/.ssh/ssh-key" $syncdir/ $4 & lastpid=$! >> $5
+		rsync $bwlimit -a -P -e "ssh -i /root/.ssh/ssh-key" $syncdir/ $4 & lastpid=$! >> $5
 		lmsg__ok "$p forking rsync ... " $lastpid
 	fi
 	echo $lastpid >> $5
