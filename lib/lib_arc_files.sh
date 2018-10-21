@@ -113,14 +113,14 @@ findLastFullArc() #finds last archve file $1 - arcstor directory
 	if $( remotePathCheck $1); then
 		#удаленный путь
 		remotePathParse $1
-		response=`ssh -i $keys_storage/$remoteserver-key $remoteserver "ls -1 -t $remotepath/*.{7z,zip} 2>/dev/null | grep '\-full\.' | grep -v '\-diff\-' | tail -n1"`
+		response=`ssh -i $keys_storage/$remoteserver-key $remoteserver "ls -1 -t $remotepath/*.{7z,zip} 2>/dev/null | grep '\-full\.' | grep -v '\-diff\-' | head -n1"`
 		if [ -n "$response" ]; then
 			echo "$remoteserver:$response"
 		else
 			echo ""
 		fi
 	else
-		ls -1 -t $1/*.{7z,zip} 2>/dev/null | grep '\-full\.' | grep -v '\-diff\-' | tail -n1
+		ls -1 -t $1/*.{7z,zip} 2>/dev/null | grep '\-full\.' | grep -v '\-diff\-' | head -n1
 	fi
 	
 }
