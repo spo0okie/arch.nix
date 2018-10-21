@@ -50,12 +50,12 @@ for section in $sections; do
 		echo "		\"{#SPOOARCDESCR}\":\"$description\","
 		echo "		\"{#SPOOARCWARNAGE}\":\"$warning_arc_age\","
 		echo "		\"{#SPOOSYNCWARNAGE}\":\"$warning_sync_age\","
-		echo "		\"{#SPOOARCWARNAGE}\":\"$critical_arc_age\","
-		echo "		\"{#SPOOSYNCWARNAGE}\":\"$critical_sync_age\","
+		echo "		\"{#SPOOARCCRITAGE}\":\"$critical_arc_age\","
+		echo "		\"{#SPOOSYNCCRITAGE}\":\"$critical_sync_age\","
 		echo "		\"{#SPOOARCWARNAGEHINT}\":\"$warning_arc_age_hint\","
 		echo "		\"{#SPOOSYNCWARNAGEHINT}\":\"$warning_sync_age_hint\","
-		echo "		\"{#SPOOARCWARNAGEHINT}\":\"$critical_arc_age_hint\","
-		echo "		\"{#SPOOSYNCWARNAGEHINT}\":\"$critical_sync_age_hint\","
+		echo "		\"{#SPOOARCCRITAGEHINT}\":\"$critical_arc_age_hint\","
+		echo "		\"{#SPOOSYNCCRITAGEHINT}\":\"$critical_sync_age_hint\","
 		echo -n "	}"
 		exists=1
 	fi
