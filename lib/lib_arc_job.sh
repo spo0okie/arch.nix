@@ -46,10 +46,51 @@ arc_job_INIT()	#подготавливается к работе
 	fi
 
 	arc_job_INIT__
+	skip_job=0
+
+	#ограничение частоты архивации
+	msg="Archiving frequency limit set?..."
+	if [ -n "$arc_min_interval" ]; then
+		lmsg_ok "$msg" "$arc_min_interval"
+
+		#ограничение есть
+		msg="Archiving frequency limit check ($arc_min_interval)... "
+
+		lastarc=`findLastArc $arcstor`
+		if [ -n "$lastarc" ]; then
+
+			last_age=`getFileHoursAge $lastarc`
+			if [ -n "$last_age" ]; then
+
+
+				if [ "$arc_min_interval" -gt "$last_age" ]; then
+					lmsg_err "$msg" "$last_age"
+					skip_job=1
+				else
+					lmsg_ok "$msg" "$last_age"
+				fi
+
+			else
+				lmsg_err "$msg" "NO last age"
+			fi
+
+		else
+			lmsg_err "$msg" "NO last arc"
+		fi
+
+	else
+		#ограничения нет
+		lmsg_norm "$msg" "NO"
+	fi
 }
 
 arc_job_BACKUP()
 {
+	if [ "$skip_job" -eq "1" ]; then
+		lmsg "Skipping this job!"
+		return 1
+	fi
+
 	findlastfull
 
 	arc_setdiffmode $1

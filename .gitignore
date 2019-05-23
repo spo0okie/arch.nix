@@ -1,2 +1,4 @@
 arch.priv.ini
 *.pid
+Backup.routers*
+get_mikrotik.py
