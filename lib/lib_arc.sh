@@ -126,7 +126,13 @@ arc_Diff()	#arc in diff mode
 	p="arcDiff($1): $arch u $lastfull $arcopts $srcxcl -u- -up3q3r2x2y2z0w2\\!$arcstor/$archprefx-$dateprefx-diff-$lastfull_base $1"
 	lmsg "$p"
 
-	$arch u $lastfull $arcopts $srcxcl -u- -up3q3r2x2y2z0w2\!$arcstor/$archprefx-$dateprefx-diff-$lastfull_base $1 | tee -a $logfile
+	if [ "$CON_TTY" == "tty" ]; then
+		#teeing output if someone watching
+		$arch u $lastfull $arcopts $srcxcl -u- -up3q3r2x2y2z0w2\!$arcstor/$archprefx-$dateprefx-diff-$lastfull_base $1 | tee -a $logfile
+	else
+		#logging if nobody watching
+		$arch u $lastfull $arcopts $srcxcl -u- -up3q3r2x2y2z0w2\!$arcstor/$archprefx-$dateprefx-diff-$lastfull_base $1 >> $logfile
+	fi
 
 	if [ "$?" -eq "0" ]; then
 		lmsg_ok "$p"
@@ -140,7 +146,13 @@ arc_Full()	#arc in full mode
 	p="arcFull($1): $arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl $1"
 	lmsg "$p"
 
-	$arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl $1 -bb3 | tee -a $logfile
+	if [ "$CON_TTY" == "tty" ]; then
+		#teeing output if someone watching
+		$arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl $1 -bb3 | tee -a $logfile
+	else
+		#logging if nobody watching
+		$arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl $1 -bb3 >> $logfile
+	fi
 
 	if [ "$?" -eq "0" ]; then
 		lmsg_ok "$p"

@@ -8,6 +8,7 @@ log_tpl=/var/log/backups/sync
 
 PROGPATH=`echo $0 | sed -e 's,[\\/][^\\/][^\\/]*$,,'`
 INI=$PROGPATH/arch.priv.ini
+logfile=/var/log/backups/all.sync.log
 
 #поделючаем библиотеки
 #подключаем все, т.к. надо проверить в т.ч. что все они присутствуют
@@ -17,6 +18,8 @@ lib_require lib_arc
 lib_require lib_arc_ini
 lib_require lib_arc_job
 lib_require lib_arc_retention
+
+
 
 #проверяем наличие секции global в файле
 ini_section_ck $INI global
@@ -34,7 +37,7 @@ for section in $sections; do
 		archsufx=`echo "$archprefx"|tr '\/' '_'`
 
 		#назначаем файл с PID процесса синхронзации
-		tmppid=spoo_sync.$archsufx.pid
+		tmppid=$pid_dir/spoo_sync.$archsufx.pid
 
 		#если файл свободен
 		if checkPIDFile $tmppid; then

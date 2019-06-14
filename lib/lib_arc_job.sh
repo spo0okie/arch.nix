@@ -35,7 +35,7 @@ arc_job_INIT()	#подготавливается к работе
 	arc_var_ck
 	arc_retention_var_ck
 
-	logfile=/var/log/spookie.backup.$archprefx.log
+	logfile=/var/log/backups/backup.$archprefx.log
 	lmsg "Log file $logfile attached ------------------------------------------------"
 	lmsg "Script started:	$archprefx differential backup //library version $libversion"
 

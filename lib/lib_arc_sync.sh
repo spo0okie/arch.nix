@@ -112,7 +112,16 @@ arc_sync_DirPeriod_async()
 		#--partial позволяет докачку
 		lmsg__ "$p forking rsync (logging into $6) ... " "99999"
 		date >> $6
-		rsync $bwlimit -a -v --partial -e "ssh -i /root/.ssh/ssh-key" $syncdir/ $4 >> $6 & lastpid=$! >> $5
+		#проверяем умеет ли rsync --info //выводится начиная с 3.1
+		rsync --info=help > /dev/null 2>&1
+		if [ "$?" -eq "0" ]; then
+			#если умеет, то выводим через --инфо
+			outinfo=--info=ALL4
+		else
+			#иначе простой вербоз
+			outinfo=-v
+		fi
+		rsync $bwlimit -a $outinfo --partial -e "ssh -i /root/.ssh/ssh-key" $syncdir/ $4 >> $6 & lastpid=$! >> $5
 		lmsg__ok "$p forking rsync (logging into $6) ... " $lastpid
 	else
 		#вывод в консоль -Р означает докачку+вывод прогресса в консоль
