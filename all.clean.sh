@@ -6,6 +6,8 @@
 
 PROGPATH=`echo $0 | sed -e 's,[\\/][^\\/][^\\/]*$,,'`
 INI=$PROGPATH/arch.priv.ini
+all_logfile=/var/log/backups/all.clean.log
+logfile=$all_logfile
 
 #поделючаем библиотеки
 #подключаем все, т.к. надо проверить в т.ч. что все они присутствуют
@@ -30,6 +32,7 @@ for section in $sections; do
 		arc_job_INIT__			#подключаемся к хранилищу
 		arc_job_CLEAN $1		#убираем старые архивы
 		arc_job_DONE			#прибираемся и отключаемся
+		logfile=$all_logfile
 		cd $PROGPATH
 	fi
 
