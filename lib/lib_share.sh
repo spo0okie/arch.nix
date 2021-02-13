@@ -1,5 +1,5 @@
 #!/bin/sh
-lib_share_version="2.0.0 rc"
+lib_share_version="2.0.1 rc2"
 
 #hist:
 #	2018-07-28
@@ -56,11 +56,16 @@ sharerelease() #unmount share
 		return 0
 	fi
 	p="sharerelease(): unmounting $arcshare from $mountpoint"
-	if $( umount $mountpoint ); then
-		lmsg_ok "$p"
-	else
-		lmsg_err "$p"
-	fi
+	while true ; do
+		if $( umount $mountpoint ); then
+			lmsg_ok "$p"
+			return 0
+		else
+			lmsg_err "$p"
+			lmsg "retry in 7 sec (waiting) ... "
+			sleep 7
+		fi
+	done
 }
 
 

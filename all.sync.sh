@@ -30,7 +30,7 @@ for section in $sections; do
 	ini_section_load $INI global
 	ini_section_load $INI $section
 
-	if $( bool $do_clean ); then
+	if $( bool $do_sync ); then
 		arc_sync_var_ck
 
 		#в суффиксе подменяем слэши
