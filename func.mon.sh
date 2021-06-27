@@ -19,9 +19,10 @@ if [ -z "$1" ]; then
 	echo "	arcfirstage	- возраст первого файла архивов"
 	echo "	arclastage	- возраст последнего файла архивов"
 	echo "	arcfullage	- возраст последнего ФУЛЛ архива"
-	echo "	arclibsize	- объем всей библиотеки архивов"
 	echo "	arcfullsize	- объем последнего фулл"
+	echo "	arclibsize	- объем всей библиотеки архивов"
 	echo "	arcdiffsize	- объем последнего дифф"
+	echo "	arcpoints	- количество файлов бэкапа"
 	echo "	syncfirstage- возраст первого файла в реплике архивов"
 	echo "	synclastage	- возраст последнего файла в реплике архивов"
 	echo "	synclibsize	- объем всей реплики архивов"
@@ -62,6 +63,7 @@ case $1 in
 			echo 65535
 		fi
 	;;
+
 	arclastage)
 		lastarc=`findLastArc $arcstor`
 		if [ -n "$lastarc" ]; then
@@ -70,6 +72,16 @@ case $1 in
 			echo 65536
 		fi
 	;;
+
+	arclastsize)
+		lastarc=`findLastArc $arcstor`
+		if [ -n "$lastarc" ]; then
+			getFileSize $lastarc
+		else
+			echo 0
+		fi
+	;;
+
 	arcfullage)
 		lastarc=`findLastFullArc $arcstor`
 		if [ -n "$lastarc" ]; then
@@ -78,6 +90,43 @@ case $1 in
 			echo 65536
 		fi
 	;;
+
+	arcfullsize)
+		lastarc=`findLastFullArc $arcstor`
+		if [ -n "$lastarc" ]; then
+			getFileSize $lastarc
+		else
+			echo 0
+		fi
+	;;
+
+	arclibsize)
+		if [ -d "$arcstor" ]; then
+			getDirSize $arcstor
+		else
+			echo 0
+		fi
+	;;
+
+	arcpoints)
+		if [ -d "$arcstor" ]; then
+			getArcsCount $arcstor
+		else
+			echo 0
+		fi
+	;;
+
+	arcsrcsize)
+		total=0
+		for src in `echo "$srcsrv"|sed 's/,/ /g'`; do 
+			if [ -d "$src" ]; then
+				#echo $src $(getDirSize $src)
+				total=$(( $(getDirSize $src) + $total ))
+			fi
+		done
+		echo $total
+	;;
+
 	synclastage)
 		lastsync=`findLastArc $remotesync/$archprefx`
 		if [ -n "$lastsync" ]; then
@@ -86,6 +135,7 @@ case $1 in
 			echo 65536
 		fi
 	;;
+
 	syncfirstage)
 		lastsync=`findFirstArc $remotesync/$archprefx`
 		if [ -n "$lastsync" ]; then

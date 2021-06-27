@@ -53,13 +53,29 @@ getFileUnixTime() #returns file creation time in unixtimestamp; usage ftime=$(ge
 		ssh -i $keys_storage/$remoteserver-key $remoteserver "stat -c %Y $remotepath 2>>/dev/null"
 		#ssh -i $keys_storage/$remoteserver-key $remoteserver "stat -c %Y $remotepath 2>&1" 2>&1
 	else
-		stat -c %Y $1 2>>/dev/null	
+		stat -c %Y $1 2>>/dev/null
 	fi
 }
 
 getFileAge() #returns age in seconds of $1 file; usage hours=$(getFileHoursAge $1)
 {
 	echo $(( `date +%s` - $(getFileUnixTime $1) ))
+}
+
+getFileSize() #returns size in bytes of $1 file; usage size=$(getFileSize $1)
+{
+	stat --printf="%s\n" $1 2>>/dev/null
+}
+
+
+getDirSize() #returns dize in bytes of $1 dir; usage size=$(getDirSize $1)
+{
+	du -csb $1 2>>/dev/null| grep total | cut -f1
+}
+
+getArcsCount() #returns archives Count of $1 dir; usage count=$(getFilesCount $1)
+{
+	ls -1 -t $1/*.{7z,zip} 2>/dev/null| wc -l
 }
 
 getFileHoursAge() #returns age in hours of $1; usage hours=$(getFileHoursAge $1)

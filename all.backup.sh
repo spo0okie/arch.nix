@@ -27,6 +27,8 @@ lmsg "Sections to proceed: $sections"
 
 for section in $sections; do
 	lmsg "Running $section."
+	#FIXME: какойто баг с тем что не затирается значение от предыдущей секции при определении в новой
+	srcxcl=""
 	ini_section_load $INI global
 	ini_section_load $INI $section
 	if $( bool $do_arc ); then

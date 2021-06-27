@@ -148,10 +148,10 @@ arc_Full()	#arc in full mode
 
 	if [ "$CON_TTY" == "tty" ]; then
 		#teeing output if someone watching
-		$arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl $1 -bb3 | tee -a $logfile
+		$arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl -bb3 $1 | tee -a $logfile
 	else
 		#logging if nobody watching
-		$arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl $1 -bb3 >> $logfile
+		$arch a $arcstor/$archprefx-$dateprefx-full.7z $arcopts $srcxcl -bb3 $1 >> $logfile
 	fi
 
 	if [ "$?" -eq "0" ]; then
