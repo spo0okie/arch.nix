@@ -100,6 +100,15 @@ case $1 in
 		fi
 	;;
 
+	arcdiffsize)
+		lastarc=`findLastDiffArc $arcstor`
+		if [ -n "$lastarc" ]; then
+			getFileSize $lastarc
+		else
+			echo 0
+		fi
+	;;
+
 	arclibsize)
 		if [ -d "$arcstor" ]; then
 			getDirSize $arcstor

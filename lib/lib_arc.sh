@@ -82,11 +82,15 @@ arc_setdiffmode()	#set diff or full mode for current job
 		case "$1" in
 			[Mm][Oo][Nn][Tt][Hh][Ll][Yy])
 				day=`date +%m`
-				if [ "$lastfull_age_days" -lt "$fulllifetime" ]; then
+				if [ "$lastfull_age_days" -gt "$fulllifetime" ]; then
+					lmsg_err "$p Monthly shedule (full is older than  $fulllifetime days)" "Full mode"
+					diffmode=false
+				elif [ "$diff_size_percentage" -gt "$diffmaxpercentage" ]; then
+					lmsg_err "$p Monthly shedule (diff size is $diff_size_percentage% of full with limit of $diffmaxpercentage%)" "Full mode"
+					diffmode=false
+				else
 					diffmode=true
 					lmsg_norm "$p Monthly shedule" "Diff mode"
-				else
-					lmsg_err "$p Monthly shedule (full is older than $fulllifetime day!)" "Full mode"
 				fi
 			;;
 			[Dd][Ii][Ff][Ff])

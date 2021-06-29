@@ -141,16 +141,60 @@ findLastFullArc() #finds last archve file $1 - arcstor directory
 	
 }
 
+findLastDiffArc() #finds last archve file $1 - arcstor directory
+{
+	#путь удаленный или локальный?
+	if $( remotePathCheck $1); then
+		#удаленный путь
+		remotePathParse $1
+		response=`ssh -i $keys_storage/$remoteserver-key $remoteserver "ls -1 -t $remotepath/*.{7z,zip} 2>/dev/null | grep '\-diff\-' | head -n1"`
+		if [ -n "$response" ]; then
+			echo "$remoteserver:$response"
+		else
+			echo ""
+		fi
+	else
+		ls -1 -t $1/*.{7z,zip} 2>/dev/null | grep '\-diff\-' | head -n1
+	fi
+	
+}
+
 findlastfull() #find last full arc file in dir
-{	
-	lastfull=$(findLastFullArc $arcstor)
-	if [ -n "$lastfull" ]; then
-		lastfull_base=`basename $lastfull`
-		lmsg_norm "findlastfull(): Last full archive is" "$lastfull_base /$lastfull_age_days days old"
-		lastfull_age_days=$(getFileDaysAge $lastfull)
-		lmsg_norm "findlastfull(): Full age" $lastfull_age_days
+{
+	#последний архиы
+	lastarc=$(findLastArc $arcstor)
+	lmsg $lastarc
+	#нашли?
+	if [ -n "$lastarc" ]; then
+		#нашли
+		difftest=`fileIsDiff $lastarc`
+		if [ "$difftest" == "diff" ]; then
+			#последним был дифф
+			#запоминаем его размер
+			last_diff_size=`getFileSize $lastarc`
+			#находим его фулл
+			lastfull=$arcstor/`fullFromDiff $lastarc`
+			#собираем инфо
+			last_full_size=`getFileSize $lastfull`
+			lastfull_age_days=$(getFileDaysAge $lastfull)
+			diff_size_percentage=$(( 100 * $last_diff_size / $last_full_size ))
+			#короткие имена для сообщений
+			lastfull_base=`basename $lastfull`
+			lastarc_base=`basename $lastarc`
+			lmsg_norm "findlastfull(): Last full archive is" "$lastfull_base /$lastfull_age_days days old"
+			lmsg "findlastfull(): Last diff $lastarc_base size is $diff_size_percentage% of full"
+		else
+			#последний архив - фулл
+			lastfull=$lastarc
+			lastfull_age_days=$(getFileDaysAge $lastfull)
+			diff_size_percentage=0
+			lastfull_base=`basename $lastfull`
+			lmsg_norm "findlastfull(): Last full archive is" "$lastfull_base /$lastfull_age_days days old"
+		fi
 	else 
+		#не нашли последнйи архив
 		lastfull_age_days=0
+		diff_size_percentage=0
 		lmsg "findlastfull(): No full archives found in $arcstor $lastfull (diff mode unavailable)"
 	fi
 }
@@ -162,7 +206,7 @@ fileIsDiff() #says diff if file is diff from other
 		if [ "$testdiff" = "$1" ]; then
 			echo "diff"
 		else
-			echo  "nodiff"
+			echo "nodiff"
 		fi
 	else
 		echo  "error: no name given"
